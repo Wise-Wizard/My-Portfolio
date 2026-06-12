@@ -34,15 +34,31 @@
                 // prevemnt defaul anchor click behavior 
                 event.preventDefault();
                 const hash = event.target.hash;
-                // deactivate existing active 'section'
-                document.querySelector(".section.active").classList.add(".hide");
-                document.querySelector(".section.active").classList.remove("active");
+                // resolve the target: hash may point to a sub-block (e.g. #skills,
+                // #experience live inside the about section) — activate its section
+                const targetEl = document.querySelector(hash);
+                const targetSection = targetEl.closest(".section") || targetEl;
+                // deactivate existing active 'section' (guarded — may be missing)
+                const currentSection = document.querySelector(".section.active");
+                if (currentSection && currentSection !== targetSection) {
+                    currentSection.classList.add("hide");
+                    currentSection.classList.remove("active");
+                }
                 // active new 'section';
-                document.querySelector(hash).classList.add("active");
-                document.querySelector(hash).classList.remove("hide");
-                // deactivate existing active navigation menu 'link-item'
-                navMenu.querySelector(".active").classList.add("outer-shadow", "hover-in-shadow");
-                navMenu.querySelector(".active").classList.remove("active", "inner-shadow");
+                targetSection.classList.add("active");
+                targetSection.classList.remove("hide");
+                // scroll sub-blocks into view once their section is shown
+                if (targetEl !== targetSection) {
+                    setTimeout(() => targetEl.scrollIntoView({ behavior: "smooth" }), 50);
+                } else {
+                    window.scrollTo({ top: 0 });
+                }
+                // deactivate existing active navigation menu 'link-item' (guarded)
+                const activeNav = navMenu.querySelector(".active");
+                if (activeNav) {
+                    activeNav.classList.add("outer-shadow", "hover-in-shadow");
+                    activeNav.classList.remove("active", "inner-shadow");
+                }
                 // if clicked 'link-item' is contained within the navigation menu 
                 if (navMenu.classList.contains("open")) {
                     // activate new navigation menu 'link-item'
